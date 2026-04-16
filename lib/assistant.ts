@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { readFileSync } from "fs";
+import { readFileSync, existsSync } from "fs";
 
 const SYSTEM_PROMPT = `Eres el asistente virtual de Axel Ruta Express, un servicio de logística y envíos express en Chile.
 
@@ -21,19 +21,29 @@ PUEDES AYUDAR CON:
 
 REGLAS:
 - Responde en español siempre
-- Sé breve: máximo 2-3 oraciones por respuesta (para llamadas de voz)
+- Sé breve: máximo 2-3 oraciones por respuesta
 - Si no sabes algo, ofrece transferir con un agente
 - Para rastrear un envío, pide el número de guía de 10 dígitos`;
 
-function getClient() {
+export function getAIClient(): Anthropic {
+  // 1. Regular API key
   const apiKey = process.env.ANTHROPIC_API_KEY;
-  const tokenFile = process.env.CLAUDE_SESSION_INGRESS_TOKEN_FILE;
-
   if (apiKey && !apiKey.startsWith("sk-ant-si-")) {
     return new Anthropic({ apiKey });
   }
 
-  if (tokenFile) {
+  // 2. Bearer token via env var (for cloud deployments)
+  const bearerToken = process.env.ANTHROPIC_BEARER_TOKEN;
+  if (bearerToken) {
+    return new Anthropic({
+      apiKey: "placeholder",
+      defaultHeaders: { Authorization: `Bearer ${bearerToken}`, "x-api-key": "" },
+    });
+  }
+
+  // 3. Bearer token via session file (local dev only)
+  const tokenFile = process.env.CLAUDE_SESSION_INGRESS_TOKEN_FILE;
+  if (tokenFile && existsSync(tokenFile)) {
     const token = readFileSync(tokenFile, "utf-8").trim();
     return new Anthropic({
       apiKey: "placeholder",
@@ -45,7 +55,7 @@ function getClient() {
 }
 
 export async function getAIResponse(userMessage: string): Promise<string> {
-  const client = getClient();
+  const client = getAIClient();
   const message = await client.messages.create({
     model: "claude-haiku-4-5-20251001",
     max_tokens: 256,

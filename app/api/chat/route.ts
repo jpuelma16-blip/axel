@@ -1,18 +1,16 @@
-import Anthropic from "@anthropic-ai/sdk";
-import { readFileSync } from "fs";
+import { getAIClient } from "@/lib/assistant";
 
 const SYSTEM_PROMPT = `Eres Axel, el asistente virtual de Axel Ruta Express, un servicio de logística y envíos express en Chile.
 
 Eres amable, profesional y conciso. Habla siempre en español.
 
 SERVICIOS:
-- Ruta Express: envíos y entregas rápidas en el mismo día o al día siguiente en Chile
 - Plan Operativa ($29/mes): hasta 500 envíos/mes, seguimiento en tiempo real, soporte por correo, integración con 1 tienda
 - Plan Pro ($79/mes): envíos ilimitados, rutas optimizadas con IA, soporte 24/7, integraciones ilimitadas, API access
 
 CONTACTO:
 - Teléfono / WhatsApp: +56 9 2247 4974
-- Web: axel.com
+- Web: axel-ruta-express.netlify.app
 
 PUEDES AYUDAR CON:
 - Información sobre planes y precios
@@ -26,32 +24,12 @@ REGLAS:
 - Si no sabes algo, ofrece conectar con un agente
 - Para rastrear un envío pide el número de guía`;
 
-function getClient() {
-  // Use injected API key if available, otherwise read session token from Claude Code
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  const tokenFile = process.env.CLAUDE_SESSION_INGRESS_TOKEN_FILE;
-
-  if (apiKey && !apiKey.startsWith("sk-ant-si-")) {
-    return new Anthropic({ apiKey });
-  }
-
-  if (tokenFile) {
-    const token = readFileSync(tokenFile, "utf-8").trim();
-    return new Anthropic({
-      apiKey: "placeholder",
-      defaultHeaders: { Authorization: `Bearer ${token}`, "x-api-key": "" },
-    });
-  }
-
-  return new Anthropic({ apiKey: apiKey ?? "" });
-}
-
 export async function POST(request: Request) {
   const { messages } = (await request.json()) as {
     messages: { role: "user" | "assistant"; content: string }[];
   };
 
-  const client = getClient();
+  const client = getAIClient();
 
   const stream = await client.messages.stream({
     model: "claude-haiku-4-5-20251001",
