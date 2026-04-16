@@ -211,7 +211,11 @@ export default function AsistentePage() {
 
         {/* Webhook config guide */}
         <div className="mt-8 bg-amber-50 border border-amber-200 rounded-2xl p-6 text-sm text-amber-900">
-          <h3 className="font-semibold mb-2">Configuración de webhooks en Twilio</h3>
+          <h3 className="font-semibold mb-1">Configuración de webhooks en Twilio</h3>
+          <p className="mb-1 text-amber-700">
+            Número configurado:{" "}
+            <span className="font-mono font-bold">+56 9 2247 4974</span>
+          </p>
           <p className="mb-3 text-amber-700">Apunta estos URLs en tu número de Twilio:</p>
           <ul className="space-y-2 font-mono text-xs">
             <li>
