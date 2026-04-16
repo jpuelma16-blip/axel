@@ -9,9 +9,15 @@ export default function Home() {
           Axel
         </p>
         <h1 className="text-5xl font-extrabold mb-4">Ruta Express</h1>
-        <p className="text-xl text-blue-100 max-w-xl mx-auto">
+        <p className="text-xl text-blue-100 max-w-xl mx-auto mb-8">
           Gestiona tu logística de forma ágil. Elige el plan que se adapta a tu operación.
         </p>
+        <Link
+          href="/asistente"
+          className="inline-flex items-center gap-2 bg-white text-blue-700 font-semibold px-6 py-3 rounded-xl hover:bg-blue-50 transition-colors"
+        >
+          💬 Hablar con el asistente
+        </Link>
       </section>
 
       {/* Pricing */}
