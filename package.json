@@ -13,9 +13,12 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.90.0",
     "@netlify/plugin-nextjs": "^5.15.9",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/qrcode": "^1.5.6",
     "@whiskeysockets/baileys": "^7.0.0-rc.9",
+    "better-sqlite3": "^12.9.0",
     "concurrently": "^9.2.1",
+    "date-fns": "^4.1.0",
     "next": "16.2.4",
     "qrcode": "^1.5.4",
     "qrcode-terminal": "^0.12.0",
