@@ -1,0 +1,28 @@
+{
+  "name": "Axel – Ruta Express",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "forwardPorts": [3000, 3001],
+  "portsAttributes": {
+    "3000": {
+      "label": "Axel Web App",
+      "onAutoForward": "openBrowser",
+      "visibility": "public"
+    },
+    "3001": {
+      "label": "WhatsApp Bot Status",
+      "visibility": "public"
+    }
+  },
+  "postCreateCommand": "npm install && bash .devcontainer/setup.sh",
+  "postStartCommand": "npm run dev",
+  "customizations": {
+    "vscode": {
+      "extensions": ["esbenp.prettier-vscode", "bradlc.vscode-tailwindcss"]
+    }
+  },
+  "remoteEnv": {
+    "CLAUDE_SESSION_INGRESS_TOKEN_FILE": "/home/claude/.claude/remote/.session_ingress_token",
+    "TWILIO_PHONE_NUMBER": "+56922474974",
+    "NEXT_PUBLIC_BASE_URL": "https://${localEnv:CODESPACE_NAME}-3000.app.github.dev"
+  }
+}
