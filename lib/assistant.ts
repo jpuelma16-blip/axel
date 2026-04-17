@@ -112,7 +112,7 @@ export function executeTool(name: string, input: Record<string, any>): string {
         error: `Horario ${input.hora} no disponible. Disponibles: ${slots.join(", ") || "ninguno"}`,
       });
     }
-    const id = createBooking({ ...input, precio: pkg.precio });
+    const id = createBooking({ ...(input as Parameters<typeof createBooking>[0]), precio: pkg.precio });
     return JSON.stringify({
       exito: true,
       id,

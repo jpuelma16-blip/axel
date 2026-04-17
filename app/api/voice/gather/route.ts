@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
   if (!speechResult.trim()) {
     replyText = "No escuché nada. ¿Puedes repetir tu consulta?";
   } else {
-    replyText = await getAIResponse(speechResult);
+    replyText = await getAIResponse([{ role: "user", content: speechResult }], "llamada");
   }
 
   // Escape XML special chars

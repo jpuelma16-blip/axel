@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
   console.log(`SMS de ${from}: ${body}`);
 
   const replyText = body.trim()
-    ? await getAIResponse(body)
+    ? await getAIResponse([{ role: "user", content: body }], "sms")
     : "Hola, soy el asistente de Axel Ruta Express. ¿En qué puedo ayudarte?";
 
   const twiml = `<?xml version="1.0" encoding="UTF-8"?>
