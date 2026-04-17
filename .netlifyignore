@@ -1,0 +1,5 @@
+node_modules
+.next
+bot/auth_info
+bot/bot_state.json
+.env.local
