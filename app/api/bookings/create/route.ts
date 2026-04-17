@@ -1,4 +1,5 @@
 import { createBooking, getAvailableSlots, PAQUETES } from "@/lib/db";
+import { notifyAdmin } from "@/lib/notify";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -22,6 +23,15 @@ export async function POST(request: Request) {
 
   const id = createBooking({
     nombre, contacto, fecha, hora, paquete,
+    descripcion, origen, destino,
+    precio: pkg.precio,
+    canal: canal ?? "web",
+  });
+
+  // Notificación al admin (fire-and-forget, no bloquea la respuesta)
+  notifyAdmin({
+    id, nombre, contacto, fecha, hora,
+    paquete, paqueteNombre: pkg.nombre,
     descripcion, origen, destino,
     precio: pkg.precio,
     canal: canal ?? "web",

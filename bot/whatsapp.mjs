@@ -248,6 +248,7 @@ async function getAIReply(jid, userText) {
 // ── Estado compartido con la web UI ────────────────────────────────────────
 let currentQR = null;
 let botStatus = "starting";
+let activeSock = null; // referencia al socket activo para enviar mensajes
 
 function saveState() {
   writeFileSync(STATE_FILE, JSON.stringify({ status: botStatus, qr: currentQR }));
@@ -258,10 +259,33 @@ function startStatusServer() {
   const server = createServer((req, res) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Content-Type", "application/json");
+
     if (req.url === "/status") {
       res.end(JSON.stringify({ status: botStatus, hasQR: !!currentQR }));
     } else if (req.url === "/qr") {
       res.end(JSON.stringify({ qr: currentQR, status: botStatus }));
+    } else if (req.method === "POST" && req.url === "/send") {
+      let body = "";
+      req.on("data", (chunk) => (body += chunk));
+      req.on("end", async () => {
+        try {
+          const { to, message } = JSON.parse(body);
+          if (!to || !message) {
+            res.writeHead(400);
+            return res.end(JSON.stringify({ error: "Se requieren to y message" }));
+          }
+          if (!activeSock || botStatus !== "connected") {
+            res.writeHead(503);
+            return res.end(JSON.stringify({ error: "Bot no conectado" }));
+          }
+          const jid = to.replace(/[^0-9]/g, "") + "@s.whatsapp.net";
+          await activeSock.sendMessage(jid, { text: message });
+          res.end(JSON.stringify({ ok: true }));
+        } catch (err) {
+          res.writeHead(500);
+          res.end(JSON.stringify({ error: err.message }));
+        }
+      });
     } else {
       res.writeHead(404);
       res.end("{}");
@@ -288,7 +312,7 @@ async function startBot() {
 
   console.log(`🚀 Axel WhatsApp Bot iniciando (WA v${version.join(".")})`);
 
-  const sock = makeWASocket({
+  const sock = activeSock = makeWASocket({
     version,
     auth: state,
     browser: Browsers.ubuntu("Chrome"),
