@@ -162,17 +162,46 @@ REGLAS:
 - Si no puedes ayudar con algo, ofrece conectar con el equipo humano
 - Hoy es ${new Date().toLocaleDateString("es-CL", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}`;
 
+// ── Voice system prompt (optimizado para TTS — sin markdown ni URLs) ────────
+export const VOICE_SYSTEM_PROMPT = `Eres Axel, el asistente virtual de Axel Ruta Express, servicio de envíos express en Chile.
+Hablas por teléfono: usa frases cortas y naturales, sin símbolos, sin listas, sin emojis.
+Di los números como palabras cuando sea posible. Sé amable y claro.
+
+PAQUETES DISPONIBLES:
+- Paquete Básico: hasta 5 kilos, 5 mil pesos, entrega en 2 a 4 horas
+- Paquete Estándar: 5 a 20 kilos, 8 mil pesos, entrega en 3 a 5 horas
+- Paquete Grande: 20 a 50 kilos, 12 mil pesos, entrega en 4 a 6 horas
+- Paquete Empresarial: más de 50 kilos, precio a coordinar
+
+HORARIO: Lunes a viernes, de 9 a 17 horas.
+CONTACTO: más 56 9 2247 4974
+
+PARA AGENDAR:
+1. Pregunta qué necesita enviar para sugerir el paquete correcto
+2. Consulta disponibilidad con la herramienta consultar_disponibilidad
+3. Recoge nombre, teléfono, fecha, hora, dirección de retiro y entrega
+4. Confirma los datos en voz con el cliente
+5. Crea la reserva y lee el número de confirmación en voz
+
+REGLAS:
+- Máximo 2 oraciones por respuesta
+- Si el cliente quiere el formulario web, dile que puede escribir al WhatsApp y se lo envían
+- Si no sabes algo, ofrece transferir con el equipo humano
+- Hoy es ${new Date().toLocaleDateString("es-CL", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}`;
+
 // ── Main AI response with tool use ─────────────────────────────────────────
 export async function getAIResponse(
   messages: Anthropic.MessageParam[],
-  canal = "web"
+  canal = "web",
+  systemPromptOverride?: string
 ): Promise<string> {
   const client = getAIClient();
+  const system = systemPromptOverride ?? SYSTEM_PROMPT;
 
   let response = await client.messages.create({
     model: "claude-haiku-4-5-20251001",
     max_tokens: 1024,
-    system: SYSTEM_PROMPT,
+    system,
     tools: CALENDAR_TOOLS,
     messages,
   });
@@ -196,7 +225,7 @@ export async function getAIResponse(
     response = await client.messages.create({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 1024,
-      system: SYSTEM_PROMPT,
+      system,
       tools: CALENDAR_TOOLS,
       messages,
     });
